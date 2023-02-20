@@ -1,0 +1,26 @@
+{
+  "editor.foldingStrategy": "auto",
+  "editor.defaultFoldingRangeProvider": "zokugun.explicit-folding",
+  "explicitFolding.rules": {
+    "*": {
+      "begin": "{{{",
+      "end": "}}}"
+    }
+  },
+  "[asm-collection]": {
+    "explicitFolding.rules": [
+      {
+        "begin": "%macro",
+        "end": "%endmacro"
+      },
+      {
+        "begin": "[SECTION ",
+        "end": "; END of [SECTION "
+      },
+      {
+        "indentation": true,
+        "offSide": true
+      }
+    ]
+  }
+}

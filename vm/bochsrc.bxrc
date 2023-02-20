@@ -1,0 +1,21 @@
+megs:32
+
+romimage:file=$BXSHARE/BIOS-bochs-latest
+vgaromimage:file=$BXSHARE/VGABIOS-lgpl-latest
+
+floppya: 1_44=freedos.img, status=inserted
+floppyb: 1_44=pmtest.img, status=inserted
+
+boot:a
+
+log:bochsout.txt
+
+mouse:enabled=0
+
+keyboard: keymap=$BXSHARE/keymaps/x11-pc-us.map
+
+panic: action=report
+
+display_library: win32, options="gui_debug"
+
+magic_break: enabled=1
