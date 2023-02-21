@@ -49,7 +49,7 @@ LABEL_DESC_CODE32:	Descriptor	       0,  SegCode32Len - 1, DA_CR | DA_32					; �
 LABEL_DESC_CODE16:	Descriptor	       0,            0ffffh, DA_C							; 非一致代码段, 16 位, 基址待设置
 LABEL_DESC_DATA:	Descriptor	       0,		DataLen - 1, DA_DRW							; 数据段, 基址待设置
 LABEL_DESC_STACK:	Descriptor	       0,        TopOfStack, DA_DRWA | DA_32				; 堆栈段, 32 位, 基址待设置
-LABEL_DESC_VIDEO:	Descriptor	 0B8000h,            0ffffh, DA_DRW							; 显存首地址
+LABEL_DESC_VIDEO:	Descriptor	 0B8000h,            0ffffh, DA_DRW + DA_DPL3							; 显存首地址
 
 LABEL_DESC_LDT0:	Descriptor	       0,       LDTLen0 - 1, DA_LDT							; LDT0, 基址待设置
 LABEL_DESC_TSS0:	Descriptor	       0,       TSSLen0 - 1, DA_386TSS						; TSS0, 基址待设置
@@ -358,9 +358,13 @@ LABEL_SEG_CODE32:
 	; push	0					; EIP
 	; retf
 
+	; 修改ds为任务0的数据段
+	mov		eax, SelectorTask0Data
+	mov		ds, eax
+
 	; 使用 iretd 进行任务切换, 切换至任务 0
-	push	SelectorTask0Stack0	; SS
-	push	TopOfTask0Stack0	; ESP
+	push	SelectorTask0Stack3	; SS
+	push	TopOfTask0Stack3	; ESP
 	pushfd						; EFLAGS
 	pop		eax					; ┓
 	or		eax, 0x200			; ┣ 将 EFLAGS 中的 IF 位置 1, 即开启中断
@@ -557,25 +561,89 @@ ClockHandler	equ	_ClockHandler - $$
 	je		.4
 	jmp		.exit
 .1:
-	mov 	eax, SelectorTask0Data
+	mov		ax, SelectorLDT0	; ┳ 加载 LDT
+	lldt	ax					; ┛
+
+	mov		eax, PageDirBase0	; ┳ 加载 CR3
+	mov		cr3, eax			; ┛
+
+	; 加载ds
+	mov		eax, SelectorTask0Data
 	mov		ds, eax
-	jmp		SelectorTSS0:0
-	jmp     .exit
+
+	; 使用 iretd 进行任务切换, 切换至任务 0
+	push	SelectorTask0Stack3	; SS
+	push	TopOfTask0Stack3	; ESP
+	pushfd						; EFLAGS
+	pop		eax					; ┓
+	or		eax, 0x200			; ┣ 将 EFLAGS 中的 IF 位置 1, 即开启中断
+	push	eax					; ┛
+	push	SelectorTask0Code	; CS
+	push	0					; EIP
+	iretd
 .2:
+	mov		ax, SelectorLDT1	; ┳ 加载 LDT
+	lldt	ax					; ┛
+
+	mov		eax, PageDirBase1	; ┳ 加载 CR3
+	mov		cr3, eax			; ┛
+
+	; 设置ds
 	mov		eax, SelectorTask1Data
 	mov		ds, eax
-	jmp		SelectorTSS1:0
-	jmp     .exit
+
+	; 使用 iretd 进行任务切换, 切换至任务 1
+	push	SelectorTask1Stack3	; SS
+	push	TopOfTask1Stack3	; ESP
+	pushfd						; EFLAGS
+	pop		eax					; ┓
+	or		eax, 0x200			; ┣ 将 EFLAGS 中的 IF 位置 1, 即开启中断
+	push	eax					; ┛
+	push	SelectorTask1Code	; CS
+	push	0					; EIP
+	iretd
 .3:
+	mov		ax, SelectorLDT2	; ┳ 加载 LDT
+	lldt	ax					; ┛
+
+	mov		eax, PageDirBase2	; ┳ 加载 CR3
+	mov		cr3, eax			; ┛
+
+	; 设置ds
 	mov		eax, SelectorTask2Data
 	mov		ds, eax
-	jmp		SelectorTSS2:0
-	jmp     .exit
+
+	; 使用 iretd 进行任务切换, 切换至任务 2
+	push	SelectorTask2Stack3	; SS
+	push	TopOfTask2Stack3	; ESP
+	pushfd						; EFLAGS
+	pop		eax					; ┓
+	or		eax, 0x200			; ┣ 将 EFLAGS 中的 IF 位置 1, 即开启中断
+	push	eax					; ┛
+	push	SelectorTask2Code	; CS
+	push	0					; EIP
+	iretd
 .4:
+	mov		ax, SelectorLDT3	; ┳ 加载 LDT
+	lldt	ax					; ┛
+
+	mov		eax, PageDirBase3	; ┳ 加载 CR3
+	mov		cr3, eax			; ┛
+
+	; 设置ds
 	mov		eax, SelectorTask3Data
 	mov		ds, eax
-	jmp		SelectorTSS3:0
-	jmp     .exit
+
+	; 使用 iretd 进行任务切换, 切换至任务 3
+	push	SelectorTask3Stack3	; SS
+	push	TopOfTask3Stack3	; ESP
+	pushfd						; EFLAGS
+	pop		eax					; ┓
+	or		eax, 0x200			; ┣ 将 EFLAGS 中的 IF 位置 1, 即开启中断
+	push	eax					; ┛
+	push	SelectorTask3Code	; CS
+	push	0					; EIP
+	iretd
 .exit:
 	popad
 	pop		ds

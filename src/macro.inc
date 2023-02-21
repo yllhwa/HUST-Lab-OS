@@ -23,16 +23,16 @@
 ALIGN	32
 LABEL_LDT%1:
 ;                                          段基址,            段界限,  属性
-LABEL_DESC_TASK%1_DATA:		Descriptor	       0, Task%1DataLen - 1, DA_DRWA				 		; 数据段, 32位, 基址待设置
-LABEL_DESC_TASK%1_CODE:		Descriptor	       0, Task%1CodeLen - 1, DA_C + DA_32				; 代码段, 32位, 基址待设置
+LABEL_DESC_TASK%1_DATA:		Descriptor	       0, Task%1DataLen - 1, DA_DRWA + DA_DPL3				 		; 数据段, 32位, 基址待设置
+LABEL_DESC_TASK%1_CODE:		Descriptor	       0, Task%1CodeLen - 1, DA_C + DA_32 + DA_DPL3				; 代码段, 32位, 基址待设置
 LABEL_DESC_TASK%1_STACK0:	Descriptor	       0, TopOfTask%1Stack0, DA_DRWA + DA_32			 	; 堆栈段, 32位，ring0, 基址待设置
 LABEL_DESC_TASK%1_STACK3:	Descriptor	       0, TopOfTask%1Stack3, DA_DRWA + DA_32 + DA_DPL3	; 堆栈段, 32位，ring3, 基址待设置
 
 LDTLen%1	equ	$ - LABEL_LDT%1		; LDT 的大小
 
 ; LDT 选择子
-SelectorTask%1Data		equ LABEL_DESC_TASK%1_DATA	- LABEL_LDT%1 + SA_TIL				; 数据段选择子
-SelectorTask%1Code		equ LABEL_DESC_TASK%1_CODE	- LABEL_LDT%1 + SA_TIL				; 代码段选择子
+SelectorTask%1Data		equ LABEL_DESC_TASK%1_DATA	- LABEL_LDT%1 + SA_TIL + SA_RPL3				; 数据段选择子
+SelectorTask%1Code		equ LABEL_DESC_TASK%1_CODE	- LABEL_LDT%1 + SA_TIL + SA_RPL3				; 代码段选择子
 SelectorTask%1Stack0		equ	LABEL_DESC_TASK%1_STACK0	- LABEL_LDT%1 + SA_TIL				; ring0 堆栈段选择子
 SelectorTask%1Stack3		equ	LABEL_DESC_TASK%1_STACK3	- LABEL_LDT%1 + SA_TIL + SA_RPL3 	; ring3 堆栈段选择子
 ; END of [SECTION .ldt0]
@@ -140,9 +140,6 @@ TopOfTask%1Stack3	equ	$ - LABEL_T%1_STACK3 - 1
 ALIGN	32
 [BITS	32]
 LABEL_T%1_CODE:
-	; debugger
-	mov 	eax, SelectorTask%1Data
-	mov     ds, eax
 	; 遍历输出szTask0Message
 	xor 	ecx, ecx
 	mov 	ah, %2
