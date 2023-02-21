@@ -557,25 +557,21 @@ ClockHandler	equ	_ClockHandler - $$
 	je		.4
 	jmp		.exit
 .1:
-	debugger
 	mov 	eax, SelectorTask0Data
 	mov		ds, eax
 	jmp		SelectorTSS0:0
 	jmp     .exit
 .2:
-	debugger
 	mov		eax, SelectorTask1Data
 	mov		ds, eax
 	jmp		SelectorTSS1:0
 	jmp     .exit
 .3:
-	debugger
 	mov		eax, SelectorTask2Data
 	mov		ds, eax
 	jmp		SelectorTSS2:0
 	jmp     .exit
 .4:
-	debugger
 	mov		eax, SelectorTask3Data
 	mov		ds, eax
 	jmp		SelectorTSS3:0
