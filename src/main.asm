@@ -561,89 +561,13 @@ ClockHandler	equ	_ClockHandler - $$
 	je		.4
 	jmp		.exit
 .1:
-	mov		ax, SelectorLDT0	; ┳ 加载 LDT
-	lldt	ax					; ┛
-
-	mov		eax, PageDirBase0	; ┳ 加载 CR3
-	mov		cr3, eax			; ┛
-
-	; 加载ds
-	mov		eax, SelectorTask0Data
-	mov		ds, eax
-
-	; 使用 iretd 进行任务切换, 切换至任务 0
-	push	SelectorTask0Stack3	; SS
-	push	TopOfTask0Stack3	; ESP
-	pushfd						; EFLAGS
-	pop		eax					; ┓
-	or		eax, 0x200			; ┣ 将 EFLAGS 中的 IF 位置 1, 即开启中断
-	push	eax					; ┛
-	push	SelectorTask0Code	; CS
-	push	0					; EIP
-	iretd
+	SwitchTask	0
 .2:
-	mov		ax, SelectorLDT1	; ┳ 加载 LDT
-	lldt	ax					; ┛
-
-	mov		eax, PageDirBase1	; ┳ 加载 CR3
-	mov		cr3, eax			; ┛
-
-	; 设置ds
-	mov		eax, SelectorTask1Data
-	mov		ds, eax
-
-	; 使用 iretd 进行任务切换, 切换至任务 1
-	push	SelectorTask1Stack3	; SS
-	push	TopOfTask1Stack3	; ESP
-	pushfd						; EFLAGS
-	pop		eax					; ┓
-	or		eax, 0x200			; ┣ 将 EFLAGS 中的 IF 位置 1, 即开启中断
-	push	eax					; ┛
-	push	SelectorTask1Code	; CS
-	push	0					; EIP
-	iretd
+	SwitchTask	1
 .3:
-	mov		ax, SelectorLDT2	; ┳ 加载 LDT
-	lldt	ax					; ┛
-
-	mov		eax, PageDirBase2	; ┳ 加载 CR3
-	mov		cr3, eax			; ┛
-
-	; 设置ds
-	mov		eax, SelectorTask2Data
-	mov		ds, eax
-
-	; 使用 iretd 进行任务切换, 切换至任务 2
-	push	SelectorTask2Stack3	; SS
-	push	TopOfTask2Stack3	; ESP
-	pushfd						; EFLAGS
-	pop		eax					; ┓
-	or		eax, 0x200			; ┣ 将 EFLAGS 中的 IF 位置 1, 即开启中断
-	push	eax					; ┛
-	push	SelectorTask2Code	; CS
-	push	0					; EIP
-	iretd
+	SwitchTask	2
 .4:
-	mov		ax, SelectorLDT3	; ┳ 加载 LDT
-	lldt	ax					; ┛
-
-	mov		eax, PageDirBase3	; ┳ 加载 CR3
-	mov		cr3, eax			; ┛
-
-	; 设置ds
-	mov		eax, SelectorTask3Data
-	mov		ds, eax
-
-	; 使用 iretd 进行任务切换, 切换至任务 3
-	push	SelectorTask3Stack3	; SS
-	push	TopOfTask3Stack3	; ESP
-	pushfd						; EFLAGS
-	pop		eax					; ┓
-	or		eax, 0x200			; ┣ 将 EFLAGS 中的 IF 位置 1, 即开启中断
-	push	eax					; ┛
-	push	SelectorTask3Code	; CS
-	push	0					; EIP
-	iretd
+	SwitchTask	3
 .exit:
 	popad
 	pop		ds

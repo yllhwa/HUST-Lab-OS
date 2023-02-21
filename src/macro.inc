@@ -207,6 +207,35 @@ SetupPaging%1:
 %endmacro
 
 ; ------------------------------------------------------------------------
+; 切换任务
+; usage: SwitchTask 任务号
+; ------------------------------------------------------------------------
+
+%macro SwitchTask 1
+	mov		ax, SelectorLDT%1	; ┳ 加载 LDT
+	lldt	ax					; ┛
+
+	mov		eax, PageDirBase%1	; ┳ 加载 CR3
+	mov		cr3, eax			; ┛
+
+	; 加载ds
+	mov		eax, SelectorTask%1Data
+	mov		ds, eax
+
+	; 使用 iretd 进行任务切换, 切换至任务 0
+	push	SelectorTask%1Stack3	; SS
+	push	TopOfTask%1Stack3	; ESP
+	pushfd						; EFLAGS
+	pop		eax					; ┓
+	or		eax, 0x200			; ┣ 将 EFLAGS 中的 IF 位置 1, 即开启中断
+	push	eax					; ┛
+	push	SelectorTask%1Code	; CS
+	push	0					; EIP
+	iretd
+%endmacro
+
+
+; ------------------------------------------------------------------------
 ; 定义bochs magic breakpoint
 ; usage: debugger
 ; ------------------------------------------------------------------------
