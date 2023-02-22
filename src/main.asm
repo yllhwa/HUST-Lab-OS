@@ -1,8 +1,3 @@
-; ================================================================
-; final_project_task1.asm
-; 编译方法：nasm final_project_task1.asm -o final_project_task1.com
-; ================================================================
-
 %include	"pm.inc"
 %include    "macro.inc"
 
