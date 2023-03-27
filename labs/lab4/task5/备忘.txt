@@ -1,0 +1,5 @@
+make
+sudo insmod main.ko
+sudo mknod /dev/my_device c 255 0
+gcc test.c -o test
+sudo ./test

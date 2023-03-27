@@ -1,0 +1,1 @@
+ps -Ao pid,ppid,cmd | grep main
